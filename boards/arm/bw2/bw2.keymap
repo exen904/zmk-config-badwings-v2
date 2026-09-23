@@ -2,145 +2,220 @@
  * Copyright (c) 2022 The ZMK Contributors
  *
  * SPDX-License-Identifier: MIT
+ *
+ * Belegung übertragen von der Totem-Keymap.
+ * Die Totem hat pro Hälfte eine zusätzliche Taste (SW16), die auf der
+ * Bad Wings V2 nicht existiert -> diese Positionen (20 und 31 im
+ * ursprünglichen 38-Tasten-Layout) wurden entfernt, alle anderen
+ * Positionen entsprechend nachgerückt. Alle Combos referenzieren die
+ * bereits angepassten (neuen) Positionen.
  */
 
+#include "keys_de.h"
 #include <behaviors.dtsi>
-#include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/bt.h>
+#include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/outputs.h>
 
-#define ALPHA       0
-#define SYMBOL      1
-#define NUMBER      2
-#define NAVIGATION  3
+#define BASE 0
+#define NUM  1
+#define NAV  2
+#define BT   3
 
 &mt {
+    quick-tap-ms = <100>;
+    global-quick-tap;
     flavor = "tap-preferred";
-    tapping_term_ms = <180>;
-};
-
-&lt {
-    tapping_term_ms = <150>;
+    tapping-term-ms = <170>;
 };
 
 / {
     combos {
         compatible = "zmk,combos";
-        combo_bootloader {
-            timeout-ms = <50>;
-            key-positions = <1 10>;
-            bindings = <&bootloader>;
 
+        combo_boot {
+            key-positions = <0 4>;
+            bindings = <&bootloader>;
+        };
+
+        combo_esc {
+            timeout-ms = <50>;
+            key-positions = <0 1>;
+            bindings = <&kp ESC>;
+            slow-release;
+        };
+
+        combo_caps {
+            timeout-ms = <50>;
+            key-positions = <15 19>;
+            bindings = <&caps_word>;
+        };
+
+        combo_singlequote {
+            timeout-ms = <75>;
+            key-positions = <7 8>;
+            bindings = <&kp DE_SQT>;
+        };
+
+        combo_doublequote {
+            timeout-ms = <75>;
+            key-positions = <8 9>;
+            bindings = <&kp DE_DQT>;
+        };
+
+        combo_minus {
+            timeout-ms = <50>;
+            key-positions = <17 18>;
+            bindings = <&kp DE_MINUS>;
+            slow-release;
+        };
+
+        combo_plus {
+            timeout-ms = <50>;
+            key-positions = <16 17>;
+            bindings = <&kp DE_PLUS>;
+            slow-release;
+        };
+
+        combo_equal {
+            timeout-ms = <50>;
+            key-positions = <26 27>;
+            bindings = <&kp DE_EQUAL>;
+            slow-release;
+        };
+
+        combo_underscore {
+            timeout-ms = <50>;
+            key-positions = <16 17 18>;
+            bindings = <&kp DE_UNDER>;
+        };
+
+        combo_worddelete {
+            timeout-ms = <50>;
+            key-positions = <18 19>;
+            bindings = <&kp LC(BSPC)>;
+        };
+
+        combo_questionmark {
+            timeout-ms = <50>;
+            key-positions = <27 28>;
+            bindings = <&kp DE_QMARK>;
+        };
+
+        combo_worddelete_mac {
+            bindings = <&kp RA(BACKSPACE)>;
+            key-positions = <18 19>;
+            layers = <3>;
+        };
+
+        combo_enter {
+            bindings = <&kp ENTER>;
+            key-positions = <16 18>;
         };
     };
 
     behaviors {
-        qesc: tap_dance_qesc {
-            compatible = "zmk,behavior-tap-dance";
-            label = "tap_dance_qesc";
-            #binding-cells = <0>;
-            tapping-term-ms = <300>;
-            bindings = <&kp Q>, <&kp ESC>;
+        hl: homerow_mods_left {
+            compatible = "zmk,behavior-hold-tap";
+            label = "homerow mods left";
+            #binding-cells = <2>;
+
+            flavor = "balanced";
+            tapping-term-ms = <155>;
+
+            bindings = <&kp>, <&kp>;
+
+            // opposite side hand keys
+            hold-trigger-key-positions = <5 6 7 8 9 15 16 17 18 19 24 25 26 27 28 29 30 31 32 33>;
         };
 
-        bkt: tap_dance_bracket {
-            compatible = "zmk,behavior-tap-dance";
-            label = "tap_dance_bracket";
-            #binding-cells = <0>;
-            tapping-term-ms = <200>;
-            bindings = <&kp LBKT>, <&kp RBKT>;
-        };
+        hr: homerow_mods_right {
+            compatible = "zmk,behavior-hold-tap";
+            label = "homerow mods right";
+            #binding-cells = <2>;
 
-        brc: tap_dance_brace {
-            compatible = "zmk,behavior-tap-dance";
-            label = "tap_dance_braces";
-            #binding-cells = <0>;
-            tapping-term-ms = <200>;
-            bindings = <&kp LBRC>, <&kp RBRC>;
-        };
+            flavor = "balanced";
+            tapping-term-ms = <155>;
 
-        par: tap_dance_paren {
-            compatible = "zmk,behavior-tap-dance";
-            label = "tap_dance_paren";
-            #binding-cells = <0>;
-            tapping-term-ms = <200>;
-            bindings = <&kp LPAR>, <&kp RPAR>;
-        };
+            bindings = <&kp>, <&kp>;
 
-        thn: tap_dance_then {
-            compatible = "zmk,behavior-tap-dance";
-            label = "tap_dance_then";
-            #binding-cells = <0>;
-            tapping-term-ms = <200>;
-            bindings = <&kp LT>, <&kp GT>;
-        };
-
-        skq: sticky_quick {
-            compatible = "zmk,behavior-sticky-key";
-            label = "sticky_quick";
-            #binding-cells = <1>;
-            bindings = <&kp>;
-            release-after-ms = <200>;
-            quick-release;
-        };
-
-        hrm: homerow_mods {
-           compatible = "zmk,behavior-hold-tap";
-           label = "homerow_mods";
-           #binding-cells = <2>;
-           tapping-term-ms = <250>;
-           quick-tap-ms = <0>;
-           flavor = "tap-preferred";
-           bindings = <&kp>, <&kp>;
-
-        };
-
-    };
-
-    conditional_layers {
-        compatible = "zmk,conditional-layers";
-        tri_layer {
-            if-layers = <SYMBOL NUMBER>;
-            then-layer = <NAVIGATION>;
+            // opposite side hand keys
+            hold-trigger-key-positions = <0 1 2 3 4 10 11 12 13 14 20 21 22 23 24 29 30 31 32 33>;
         };
     };
 
     keymap {
         compatible = "zmk,keymap";
 
-        ALPHA_layer {
+        base_layer {
+            label = "BASE";
+
             bindings = <
-                &qesc    &kp W           &kp E       &kp R       &kp T        &kp Y     &kp U            &kp I     &kp O    &kp P
-                &kp A   &kp S           &kp D       &kp F       &kp G        &kp H     &kp J            &kp K     &kp L    &kp SQT
-                &kp Z   &hrm LGUI X     &hrm LALT C       &kp V       &kp B        &kp N     &kp M            &kp COMMA &kp DOT  &kp SLASH
-                                        &kp LCTRL   &sl SYMBOL  &skq LSHIFT  &kp SPACE &lt NUMBER BSPC  &kp RET
+            &kp Q          &kp DE_W       &kp DE_E        &kp DE_R        &kp DE_T     &kp DE_Z   &kp DE_U        &kp DE_I        &kp DE_O       &kp DE_P
+            &hl LGUI DE_A  &hl LALT DE_S  &hl LCTRL DE_D  &hl LSHFT DE_F  &kp DE_G     &kp DE_H   &hr RSHFT DE_J  &hr RCTRL DE_K  &hr RALT DE_L  &hr RGUI DE_SEMI
+            &kp DE_Y       &kp DE_X       &kp DE_C        &kp DE_V        &kp DE_B     &kp DE_N   &kp DE_M        &kp DE_COMMA    &kp DE_DOT     &kp DE_FSLH
+                                          &kp DEL         &lt 1 TAB       &kp SPACE    &kp ENTER  &lt 2 ESCAPE    &kp BACKSPACE
             >;
         };
 
-        SYMBOL_layer {
+        NUM_layer {
+            label = "NUM";
+
             bindings = <
-                &kp EXCL    &kp AT      &kp HASH    &kp DLLR    &kp PRCNT   &kp CARET   &kp AMPS    &kp STAR    &kp PIPE    &none
-                &kp GRAVE   &kp TILDE   &kp UNDER   &kp EQUAL   &none       &bkt        &brc        &par        &thn        &kp BSLH
-                &none       &none       &kp PLUS    &kp MINUS   &none       &none       &none       &kp COLON   &trans     &kp SEMI
-                                        &trans      &trans      &trans      &trans      &trans      &trans
+                 &kp ESC    &kp PIPE   &kp UP     &trans     &kp DE_LBRC    &kp DE_RBRC  &kp N7        &kp N8    &kp N9  &kp DE_PLUS
+                 &kp LSHFT  &kp LEFT   &kp DOWN   &kp RIGHT  &kp DE_LBKT    &kp DE_RBKT  &kp N4        &kp N5    &kp N6  &kp DE_MINUS
+                 &kp DEL    &kp PG_UP  &kp LC(C)  &kp LC(V)  &kp DE_LPAR    &kp DE_RPAR  &kp N1        &kp N2    &kp N3  &kp DOT
+                                       &trans     &trans     &trans         &kp N0       &kp DE_UNDER  &kp BSPC
             >;
         };
 
-        NUMBER_layer {
+        nav_layer {
+            label = "NAV";
+
             bindings = <
-                &none       &none       &none       &none       &none       &none       &none       &none       &none       &none
-                &kp N1      &kp N2      &kp N3      &kp N4      &kp N5      &kp N6      &kp N7      &kp N8      &kp N9      &kp N0
-                &none       &none       &none       &none       &none       &none       &none       &none       &trans      &none
-                                        &trans      &trans      &trans      &trans      &trans      &trans
+        &kp DE_EXCL      &kp DE_AT  &kp DE_HASH  &kp DE_DLLR  &kp DE_PRCNT    &kp DE_GRAVE     &kp DE_AMPS    &kp DE_EURO     &kp DE_EQUAL     &kp DE_ASTRK
+        &kp DE_A_UMLAUT  &kp DE_SZ  &trans       &kp DE_LT    &kp DE_GT       &kp DE_U_UMLAUT  &kp DE_DEGREE  &trans          &kp DE_O_UMLAUT  &kp DE_O_UMLAUT
+        &trans           &trans     &kp LC(C)    &kp LC(V)    &kp C_MUTE      &kp C_VOL_DN     &kp C_VOL_UP   &kp C_PREVIOUS  &kp C_NEXT       &kp DE_BSLH
+                                    &trans       &mo 6        &kp DE_A        &trans           &trans         &trans
             >;
         };
 
-        NAVIGATION_layer {
+        BASE_mac {
             bindings = <
-                &none           &kp F2          &out OUT_USB    &out OUT_BLE    &bt BT_CLR      &none       &kp HOME    &kp UP      &kp END     &kp BSPC 
-                &kp TAB         &none           &bt BT_SEL 0    &bt BT_SEL 1    &none           &none       &kp LEFT    &kp DOWN    &kp RIGHT   &kp RET
-                &none           &none           &bt BT_SEL 2    &bt BT_SEL 3    &bt BT_SEL 4    &none       &kp C_PREV  &kp C_PP    &kp C_NEXT  &kp DEL    
-                                                &trans          &trans          &trans          &trans      &trans      &trans
+                 &kp Q               &kp W           &kp E               &kp R             &kp T        &kp DE_Z   &kp U              &kp I                   &kp O            &kp P
+                 &hl LEFT_CONTROL A  &hl LEFT_ALT S  &hl LEFT_COMMAND D  &hl LEFT_SHIFT F  &kp G        &kp H      &hr RIGHT_SHIFT J  &hr RIGHT_COMMAND DE_K  &hr RIGHT_ALT L  &hr RIGHT_CONTROL DE_SEMI
+                 &kp DE_Y            &kp X           &kp C               &kp V             &kp B        &kp N      &kp M              &kp DE_COMMA            &kp DE_DOT       &kp DE_FSLH
+                                                     &kp DELETE          &lt 4 TAB         &kp SPACE    &kp ENTER  &lt 5 ESC          &kp BSPC
+            >;
+        };
+
+        NUM_mac {
+            bindings = <
+                 &kp ESCAPE      &kp LA(N7)      &kp UP          &trans           &kp LA(NUMBER_8)           &kp LA(N9)                &kp NUMBER_7       &kp N8         &kp N9        &kp DE_PLUS
+                 &kp LEFT_SHIFT  &kp LEFT_ARROW  &kp DOWN_ARROW  &kp RIGHT_ARROW  &kp DE_LEFT_BRACKET        &kp DE_RIGHT_BRACKET      &kp NUMBER_4       &kp NUMBER_5   &kp NUMBER_6  &kp DE_MINUS
+                 &kp DELETE      &trans          &kp LG(C)       &kp LG(V)        &kp DE_LEFT_PARENTHESIS    &kp DE_RIGHT_PARENTHESIS  &kp NUMBER_1       &kp N2         &kp NUMBER_3  &kp DE_DOT
+                                                 &trans          &trans           &trans                     &kp NUMBER_0              &kp DE_UNDERSCORE  &kp BACKSPACE
+            >;
+        };
+
+        SYM_mac {
+            label = "sym_mac";
+            bindings = <
+        &kp DE_EXCL      &kp RA(L)  &kp DE_HASH  &kp DE_DLLR  &kp DE_PRCNT    &kp DE_GRAVE     &kp DE_AMPS   &kp RA(E)       &kp DE_EQUAL     &kp DE_ASTRK
+        &kp DE_A_UMLAUT  &kp DE_SZ  &trans       &kp DE_LT    &kp DE_GT       &kp DE_U_UMLAUT  &trans        &trans          &kp DE_O_UMLAUT  &kp DE_O_UMLAUT
+        &trans           &trans     &kp LC(C)    &kp LC(V)    &kp C_MUTE      &kp C_VOL_DN     &kp C_VOL_UP  &kp C_PREVIOUS  &kp C_NEXT       &kp RA(RS(N7))
+                                    &trans       &mo 6        &kp DE_A        &trans           &trans        &trans
+            >;
+        };
+
+        BT_layer {
+            label = "BT";
+
+            bindings = <
+       &sys_reset   &trans  &trans   &to 3   &to 0         &trans  &kp F7  &kp F8  &kp F9  &kp F12
+       &bootloader  &trans  &trans   &trans  &trans        &trans  &kp F4  &kp F5  &kp F6  &kp F11
+       &trans       &trans  &trans   &trans  &trans        &trans  &kp F1  &kp F2  &kp F3  &kp F10
+                                &to 3        &trans        &trans          &trans  &trans  &to 0
             >;
         };
     };

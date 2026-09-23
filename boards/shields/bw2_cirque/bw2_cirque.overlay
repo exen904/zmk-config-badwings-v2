@@ -13,7 +13,7 @@
         status = "okay";
         dr-gpios = <&gpiob 0 GPIO_ACTIVE_HIGH>;
 
-        sensitivity = "4x";
+        sensitivity = "6x";
         y-invert;
         rotate-90;
     };
